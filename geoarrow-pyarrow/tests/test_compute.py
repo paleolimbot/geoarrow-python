@@ -244,15 +244,18 @@ def test_as_geoarrow_serialized_storage(target_factory, input_kind):
     result = ga.as_geoarrow(source, type=target)
     result.validate(full=True)
     assert result.type.storage_type == target.storage_type
-    assert result.type.__arrow_ext_serialize__() == source.type.__arrow_ext_serialize__()
+    assert (
+        result.type.__arrow_ext_serialize__() == source.type.__arrow_ext_serialize__()
+    )
     ordinary = (
         ga.as_wkb(source)
         if target.encoding in (ga.Encoding.LARGE_WKB, ga.Encoding.WKB_VIEW)
         else ga.as_wkt(source)
     )
-    assert _compute.ensure_storage(result).to_pylist() == _compute.ensure_storage(
-        ordinary
-    ).to_pylist()
+    assert (
+        _compute.ensure_storage(result).to_pylist()
+        == _compute.ensure_storage(ordinary).to_pylist()
+    )
     assert ga.as_geoarrow(result, type=result.type) is result
     if isinstance(source, pa.ChunkedArray):
         assert isinstance(result, pa.ChunkedArray)
